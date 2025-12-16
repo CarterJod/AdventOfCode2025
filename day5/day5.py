@@ -1,30 +1,49 @@
-# Read input
-with open("input.txt") as f:
-    data = f.read().strip()
+import os
 
-# --- Split into the two sections ---
+input_path = os.path.join(os.path.dirname(__file__), "input.txt")
+with open(input_path) as f:
+    data = f.read().strip()
+#part 1
 parts = data.split("\n\n")
 range_lines = parts[0].strip().splitlines()
 id_lines = parts[1].strip().splitlines()
 
-# --- Parse ranges ---
 ranges = []
 for line in range_lines:
-    # TODO: parse "x-y" into integers
-    pass
+    start_str, end_str = line.split('-')
+    start = int(start_str)
+    end = int(end_str)
+    ranges.append((start, end))
 
-# --- Parse ingredient IDs ---
 ids = []
 for line in id_lines:
-    # TODO: convert each line to an int
-    pass
+    strline = int(line)
+    ids.append(strline)
 
-# --- Check which IDs are fresh ---
 fresh_count = 0
 
 for ingredient in ids:
-    # TODO: determine if ingredient falls in ANY range
-    # if yes: increment fresh_count
-    pass
+    for start, end in ranges:
+        if start <= ingredient <= end:
+            fresh_count += 1
+            break
 
 print(fresh_count)
+
+#part 2
+ranges.sort()
+
+merged_ranges = []
+if ranges:
+    curr_start, curr_end = ranges[0]
+    for i in range(1, len(ranges)):
+        next_start, next_end = ranges[i]
+        if next_start <= curr_end + 1:
+            curr_end = max(curr_end, next_end)
+        else:
+            merged_ranges.append((curr_start, curr_end))
+            curr_start, curr_end = next_start, next_end
+    merged_ranges.append((curr_start, curr_end))
+
+total_fresh_count = sum(end - start + 1 for start, end in merged_ranges)
+print("Total fresh ingredient IDs:", total_fresh_count)
